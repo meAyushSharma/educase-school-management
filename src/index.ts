@@ -1,8 +1,12 @@
-import express , { Express } from "express";
 import "dotenv/config";
+import express , { Express } from "express";
+import { globalExceptionHandler } from "./services/globalEcceptionHandler";
 import cors from "cors";
 import router from "./routes";
 import { PrismaClient } from "@prisma/client";
+import errorHandler from "./middlewares/errorHandler";
+
+globalExceptionHandler();
 
 declare global {
     var prisma: PrismaClient | undefined;
@@ -31,7 +35,15 @@ const app = express();
 app.use(cors())
 app.use(express.json());
 app.use('/', router);
+app.use(errorHandler);
 
-app.listen(PORT, HOST, () => {
+const schoolManagementApp = app.listen(PORT, HOST, () => {
     console.log(`Server listening on ${PORT} with host : ${HOST}`);
+});
+
+process.on("exit", () => {
+    console.log("Shutting down server...");
+    schoolManagementApp.close(() => {
+        console.log("school management server closed")
+    });
 });

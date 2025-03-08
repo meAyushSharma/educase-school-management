@@ -3,6 +3,7 @@ import zod from "zod";
 import { ExpressError } from "../utils/ExpressError";
 import statusCodes from "../utils/statusCodes";
 import { School } from "../models/schoolModel";
+import getDistance from "../helper/getDistance";
 
 const addSchoolBody = zod.object({
     name : zod.string().nonempty(),
@@ -54,6 +55,17 @@ const listSchoolBody = zod.object({
     })
 })
 
+type SchoolDistance = {
+    school : {
+        id: number,
+        name: String,
+        latitude: number,
+        longitude: number,
+        address: String,
+    }
+    dist : number;
+}
+
 const listSchools = async (req: Request, res: Response, next: NextFunction) => {
     try{
         const {latitude, longitude} = req.body;
@@ -61,13 +73,42 @@ const listSchools = async (req: Request, res: Response, next: NextFunction) => {
         if(!success) return next(new ExpressError("Incorrect input sent", statusCodes["Bad Request"], "Zod deemed invalid: /listSchool"));
         const schools = await School.findMany({});
         if(!schools) return next(new ExpressError("Error fetching school list from database", statusCodes["Server Error"], "Database error in fetching schools"));
-        
+        const schoolProximity : SchoolDistance[] = schools.map(school => {
+            const dist = getDistance(latitude, longitude, school.latitude, school.longitude);
+            return {
+                school,
+                dist,
+            }
+        });
+        const sortedProximity = schoolProximity.sort((a,b) => a.dist - b.dist).map(sortedList => sortedList.school);
+        console.log(`Sorted based on proximity of user: `, sortedProximity);
+        return res.status(statusCodes.Ok).json({
+            msg: "Fetched all the schools sorted according to proximity of each from user",
+            schools: sortedProximity,
+            success: false,
+        })
     } catch (err) {
         console.error(`Error during listSchool is: `, err);
         next(err);
     }
 }
 
+const healthCheck = (req: Request, res: Response, next: NextFunction) : void => {
+    try {
+        res.status(statusCodes.Ok).json({
+            msg: "Server is in healthy state",
+            success: true,
+        });
+    } catch (err) {
+        console.error("Error in health check route is: ", err);
+        next(err);
+    }
+}
+
+const handleInvalidRoutes = (req: Request, res: Response, next: NextFunction) : void => {
+    next(new ExpressError("Route not exist", statusCodes["Bad Request"], "invalid route"));
+}
+
 export {
-    addSchool, listSchools
+    addSchool, listSchools, healthCheck, handleInvalidRoutes
 }
