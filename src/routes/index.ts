@@ -8,7 +8,7 @@ router.post('/addSchool', catchAsync(addSchool));
 router.get('/listSchools', catchAsync(listSchools));
 router.get('/health', healthCheck);
 /* crash test route for docker restart policy testing */
-router.get('/crash', crashTest);
+// router.get('/crash', crashTest);
 
 router.all("*", handleInvalidRoutes);
 

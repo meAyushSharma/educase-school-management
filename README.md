@@ -124,5 +124,13 @@
         "success": false
     }
 ```      
-3. /health
-```
+3. /health : GET
+```sh
+# expected response
+{"msg":"Server is in healthy state","success":true}
+```    
+
+### Features    
+1. Dockerized the application.    
+2. Handled global exceptions with logging errors.   
+3. Used typescript.    
