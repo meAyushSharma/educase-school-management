@@ -152,3 +152,13 @@ npm i
 npm start
 ```     
 
+or    
+4. If you have docker, run :    
+```sh
+docker compose up --build
+```    
+
+This will build image and run it in interactive mode.     
+
+Assignment completed.
+
