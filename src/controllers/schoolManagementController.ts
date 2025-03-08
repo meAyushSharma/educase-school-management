@@ -47,10 +47,10 @@ const addSchool = async (req: Request, res : Response, next: NextFunction) => {
 }
 
 const listSchoolBody = zod.object({
-    latitude : zod.number().refine(n => n % 1 !== 0, {
+    latitude : zod.coerce.number().refine(n => n % 1 !== 0, {
         message: "Must be a floating-point number",
     }),
-    longitude : zod.number().refine(n => n % 1 !== 0, {
+    longitude : zod.coerce.number().refine(n => n % 1 !== 0, {
         message: "Must be a floating-point number",
     })
 })
@@ -68,13 +68,13 @@ type SchoolDistance = {
 
 const listSchools = async (req: Request, res: Response, next: NextFunction) => {
     try{
-        const {latitude, longitude} = req.body;
-        const {success, data} = listSchoolBody.safeParse(req.body);
+        const {latitude, longitude} = req.query;
+        const {success, data} = listSchoolBody.safeParse({latitude, longitude});
         if(!success) return next(new ExpressError("Incorrect input sent", statusCodes["Bad Request"], "Zod deemed invalid: /listSchool"));
         const schools = await School.findMany({});
         if(!schools) return next(new ExpressError("Error fetching school list from database", statusCodes["Server Error"], "Database error in fetching schools"));
         const schoolProximity : SchoolDistance[] = schools.map(school => {
-            const dist = getDistance(latitude, longitude, school.latitude, school.longitude);
+            const dist = getDistance(data.latitude, data.longitude, school.latitude, school.longitude);
             console.log(`dist for ${school.id} is ${dist}`);
             return {
                 school,
@@ -86,7 +86,7 @@ const listSchools = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(statusCodes.Ok).json({
             msg: "Fetched all the schools sorted according to proximity of each from user",
             schools: sortedProximity,
-            success: false,
+            success: true,
         })
     } catch (err) {
         console.error(`Error during listSchool is: `, err);

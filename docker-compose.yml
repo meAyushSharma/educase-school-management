@@ -10,6 +10,8 @@ services:
       - NODE_ENV=production
     ports:
       - "4005:4005"
+      - "4006:4006"
+      - "28750:28750"
     command: >
       sh -c "npx prisma generate &&
              npx prisma migrate deploy &&
