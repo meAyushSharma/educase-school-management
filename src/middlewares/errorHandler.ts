@@ -2,6 +2,7 @@ import statusCodes from "../utils/statusCodes";
 import { Request, Response, NextFunction } from "express";
 import { ExpressError } from "../utils/ExpressError";
 
+/* error handler middleware that sends out response in a centralized manner */
 const errorHandler = (err:any, req : Request, res : Response, next : NextFunction) => {
     console.error(`Error: `, err);
 

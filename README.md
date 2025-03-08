@@ -134,3 +134,21 @@
 1. Dockerized the application.    
 2. Handled global exceptions with logging errors.   
 3. Used typescript.    
+4. Deployed on digital ocean vps.    
+5. DNS setup via cloudflare.    
+
+### Installation    
+1. Fork the repo.    
+2. Clone that repo.   
+3. Run the following in succession:   
+```sh
+touch .env
+# replace the content with actual data
+# PORT=4005
+# HOST="0.0.0.0"
+# NODE_ENV=production
+# DATABASE_URL="mysql connection string"
+npm i
+npm start
+```     
+

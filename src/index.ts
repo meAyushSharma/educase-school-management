@@ -6,8 +6,10 @@ import router from "./routes";
 import { PrismaClient } from "@prisma/client";
 import errorHandler from "./middlewares/errorHandler";
 
+/* exception handling */
 globalExceptionHandler();
 
+/* pglobal connection pooling */
 declare global {
     var prisma: PrismaClient | undefined;
 }
@@ -28,12 +30,16 @@ const connectDB = async () =>  {
 }
 connectDB();
 
+
 const PORT = Number(process.env.PORT) || 4006;
 const HOST = process.env.HOST || "0.0.0.0";
 const app = express();
 
+/* allows all origins */
 app.use(cors())
 app.use(express.json());
+
+
 app.use('/', router);
 app.use(errorHandler);
 

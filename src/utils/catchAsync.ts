@@ -1,6 +1,7 @@
 import { ExpressError } from "./ExpressError";
 import { Request, Response, NextFunction } from "express";
 
+/* to catch async errors and forward it to error handler middleware */
 const catchAsync = (func: (req: Request, res: Response, next: NextFunction) => Promise<any>) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {

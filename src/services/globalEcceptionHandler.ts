@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path";
 
+/* get names */
 const LOG_DIR = path.join(__dirname, "../logs");
 const LOG_FILE = path.join(LOG_DIR, "error.log");
 
+/* if they not exists then create anew */
 function ensureLogFileExists(): void {
     if (!fs.existsSync(LOG_DIR)) {
         fs.mkdirSync(LOG_DIR, { recursive: true });
@@ -14,6 +16,8 @@ function ensureLogFileExists(): void {
     }
 }
 
+
+/* log every exception when exited with code 0 or 1 */
 const logErrorToFile = (error: Error | string): void => {
     ensureLogFileExists();
     const logPath = path.join(__dirname, "../logs/error.log");
@@ -22,6 +26,7 @@ const logErrorToFile = (error: Error | string): void => {
     fs.appendFileSync(logPath, errorMessage, "utf8");
 }
 
+/* console the error */
 const globalErrorHandler = (error: Error | string, origin: string): void => {
     console.error(`Critical Error: ${error instanceof Error ? error.message : error}`);
 
@@ -33,6 +38,8 @@ const globalErrorHandler = (error: Error | string, origin: string): void => {
     }, 500);
 }
 
+
+/* detect the error */
 export const globalExceptionHandler = (): void => {
     process.on("uncaughtException", (err: Error) => {
         globalErrorHandler(err, "Uncaught Exception");

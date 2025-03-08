@@ -20,7 +20,10 @@ const addSchool = async (req: Request, res : Response, next: NextFunction) => {
     try {
         const {name, address, latitude, longitude} = req.body;
         const {success, data} = addSchoolBody.safeParse(req.body);
+        /* 1. check for zod validation */
         if(!success) return next(new ExpressError("Incorrect input sent", statusCodes["Bad Request"], "Zod deemed invalid: /addSchool"));
+        
+        /* 2. create school tuple */
         const school = await School.create({
             data : {
                 name: name.trim(),
@@ -41,6 +44,7 @@ const addSchool = async (req: Request, res : Response, next: NextFunction) => {
         });
     } catch (err) {
         console.error(`Error during addSchool is: `, err);
+        /* pass error to error handler middleware */
         next(err);
     }
     
@@ -71,8 +75,12 @@ const listSchools = async (req: Request, res: Response, next: NextFunction) => {
         const {latitude, longitude} = req.query;
         const {success, data} = listSchoolBody.safeParse({latitude, longitude});
         if(!success) return next(new ExpressError("Incorrect input sent", statusCodes["Bad Request"], "Zod deemed invalid: /listSchool"));
+        
+        /* fetch all schools */
         const schools = await School.findMany({});
         if(!schools) return next(new ExpressError("Error fetching school list from database", statusCodes["Server Error"], "Database error in fetching schools"));
+        
+        /* create array with distance of each school from user perspective in ascending order */
         const schoolProximity : SchoolDistance[] = schools.map(school => {
             const dist = getDistance(data.latitude, data.longitude, school.latitude, school.longitude);
             console.log(`dist for ${school.id} is ${dist}`);
@@ -81,19 +89,25 @@ const listSchools = async (req: Request, res: Response, next: NextFunction) => {
                 dist,
             }
         });
+
+        /* sort the array */
         const sortedProximity = schoolProximity.sort((a,b) => a.dist - b.dist).map(sortedList => sortedList.school);
         console.log(`Sorted based on proximity of user: `, sortedProximity);
+        
+        /* did not sent distance along with data, but this can be changed */
         return res.status(statusCodes.Ok).json({
             msg: "Fetched all the schools sorted according to proximity of each from user",
             schools: sortedProximity,
             success: true,
-        })
+        });
     } catch (err) {
         console.error(`Error during listSchool is: `, err);
         next(err);
     }
 }
 
+
+/* route to check server health */
 const healthCheck = (req: Request, res: Response, next: NextFunction) : void => {
     try {
         res.status(statusCodes.Ok).json({
@@ -106,11 +120,12 @@ const healthCheck = (req: Request, res: Response, next: NextFunction) : void => 
     }
 }
 
+/* to handle invalid routes */
 const handleInvalidRoutes = (req: Request, res: Response, next: NextFunction) : void => {
     next(new ExpressError("Route not exist", statusCodes["Bad Request"], "invalid route"));
 }
 
-
+/* to emulate crashing for docker restart policy testing */
 const crashTest = (req: Request, res: Response, next: NextFunction) : void => {
     console.log("Crashing the application...");
     process.exit(1);

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
+/* to ensure multiple connections are not instantiated */
 declare global {
     var prisma: PrismaClient | undefined;
 }

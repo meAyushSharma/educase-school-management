@@ -1,3 +1,4 @@
+/* centralized status codes */
 const statusCodes = {
     "Bad Request":400,
     "Ok":200,

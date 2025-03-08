@@ -4,9 +4,13 @@ import { addSchool, listSchools, healthCheck, handleInvalidRoutes, crashTest } f
 
 const router = Router();
 
+
 router.post('/addSchool', catchAsync(addSchool));
 router.get('/listSchools', catchAsync(listSchools));
+
+
 router.get('/health', healthCheck);
+
 /* crash test route for docker restart policy testing */
 // router.get('/crash', crashTest);
 
