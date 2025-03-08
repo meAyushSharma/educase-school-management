@@ -75,6 +75,7 @@ const listSchools = async (req: Request, res: Response, next: NextFunction) => {
         if(!schools) return next(new ExpressError("Error fetching school list from database", statusCodes["Server Error"], "Database error in fetching schools"));
         const schoolProximity : SchoolDistance[] = schools.map(school => {
             const dist = getDistance(latitude, longitude, school.latitude, school.longitude);
+            console.log(`dist for ${school.id} is ${dist}`);
             return {
                 school,
                 dist,
@@ -109,6 +110,12 @@ const handleInvalidRoutes = (req: Request, res: Response, next: NextFunction) : 
     next(new ExpressError("Route not exist", statusCodes["Bad Request"], "invalid route"));
 }
 
+
+const crashTest = (req: Request, res: Response, next: NextFunction) : void => {
+    console.log("Crashing the application...");
+    process.exit(1);
+}
+
 export {
-    addSchool, listSchools, healthCheck, handleInvalidRoutes
+    addSchool, listSchools, healthCheck, handleInvalidRoutes, crashTest
 }
