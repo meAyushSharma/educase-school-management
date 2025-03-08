@@ -1,0 +1,16 @@
+name: educase-assignment
+services:
+  school-management-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "4005:4005"
+    command: >
+      sh -c "npx prisma generate &&
+             npx prisma migrate deploy &&
+             npm run start"
